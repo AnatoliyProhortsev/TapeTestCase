@@ -1,4 +1,11 @@
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <iterator>
+#include <algorithm>
+
 #include "TapeInterface.h"
+#include "exceptions.h"
 
 class Tape: public TapeInterface
 {
@@ -10,6 +17,10 @@ class Tape: public TapeInterface
         ~Tape() override;
 
         [[nodiscard]] std::vector<int> readTape(const size_t &elemCount = 0) const override;
+
+        [[nodiscard]] int readHead() const override;
+
+        void eraseHead();
 
         void writeTape(const std::vector<int> &elements) override;
 };

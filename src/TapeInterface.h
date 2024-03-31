@@ -1,5 +1,7 @@
+#pragma once
 #include <string>
 #include <filesystem>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -11,11 +13,15 @@ class TapeInterface
         TapeInterface(fs::path &&fileName): _fileName(std::move(fileName)) {}
 
         [[nodiscard]] virtual std::vector<int> readTape(const size_t &elemCount = 0) const = 0;
+        
+        [[nodiscard]] virtual int readHead() const = 0;
 
         virtual void writeTape(const std::vector<int> &elements) = 0;
 
+        virtual void eraseHead() = 0;
+
         virtual ~TapeInterface() = default;
 
-    private:
+    protected:
         fs::path _fileName;
 };
