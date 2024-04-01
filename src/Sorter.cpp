@@ -20,9 +20,10 @@ void Sorter::readConfig(const fs::path &ConfigFileName)
         <<"mov delay: "<<_moveDealy<<'\n'
         <<"memory lim: "<<_memoryMax<<'\n';
         configFile.close();
-    
-    }catch (const std::exception & e) {
-        std::cerr << "Exception during opening/reading/closing config file: "<<e.what() << std::flush;
+    }
+    catch(const std::ios_base::failure &)
+    {
+        throw BadCfgEx();
     }
 }
 
@@ -122,6 +123,7 @@ void Sorter::performOutputTape(std::vector<Tape> &srcTapes, const fs::path &out)
         std::unordered_map<int,int> index_offset;
         std::vector<Tape>::iterator iter;
         std::vector<Tape>::iterator minTapeIter;
+        bool firstIter = true;
         for(iter = srcTapes.begin(); iter != srcTapes.end();)
         {
             sleep(_readWriteDelay);
@@ -135,7 +137,13 @@ void Sorter::performOutputTape(std::vector<Tape> &srcTapes, const fs::path &out)
                 std::unordered_map<int, int>::value_type b)
                     { return a.second < b.second; });
 
-            outputFile << min.second << ' ';
+            if(firstIter)
+            {
+                outputFile << min.second;
+                firstIter = false;
+            }
+            else
+                outputFile <<' '<< min.second;
 
             minTapeIter = srcTapes.begin();
             std::advance(minTapeIter, min.first);

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unistd.h>
 
+#include <gtest/gtest.h>
 #include "Tape.h"
 
 namespace fs = std::filesystem;
@@ -19,6 +20,11 @@ class Sorter
         void readConfig(const fs::path &configFileName);
 
         void startSort(const fs::path &src, const fs::path &out);
+
+        //Для unit-тестирования
+
+        FRIEND_TEST(cfg_reading, invalid_cfg);
+        FRIEND_TEST(cfg_reading, valid_cfg);
 
     private:
         //Функции для сортировки
