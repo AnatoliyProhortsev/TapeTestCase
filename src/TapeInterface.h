@@ -12,6 +12,8 @@ class TapeInterface
 
         TapeInterface(fs::path &&fileName): _fileName(std::move(fileName)) {}
 
+        // [[nodiscard]] virtual bool checkEOF() const = 0;
+
         [[nodiscard]] virtual std::vector<int> readTape(const size_t &elemCount = 0) const = 0;
         
         [[nodiscard]] virtual int readHead() const = 0;

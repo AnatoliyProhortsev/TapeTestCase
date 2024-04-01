@@ -23,31 +23,34 @@ std::vector<int> Tape::readTape(const size_t &elemCount) const
             while(inputFile >> value && ++readedElems != elemCount)
                 res.push_back(value);
         }
+        inputFile.close();
+        return res;
     }
     catch(const std::ios_base::failure & e)
     {
         std::cerr << "Exception during opening/reading/closing tape file" << std::flush;
     }
-    return res;
 }
 
 void Tape::writeTape(const std::vector<int> &elements)
 {
-    if(elements.empty())
-        throw EmptyTapeEx();
-    else
+    try
     {
-        try
-        {
-            std::ofstream outputFile(_fileName, std::ios::out);
-            std::ostream_iterator<int> output_iterator(outputFile, " ");
-            std::copy(elements.begin(), elements.end(), output_iterator);
-            outputFile.close();
-        }
-        catch(const std::exception & e)
-        {
-            std::cerr << "Exception during opening/writing/closing tape file: "<< e.what() << std::flush;
-        }
+        if(elements.empty())
+            throw EmptyTapeEx();
+
+        std::ofstream outputFile(_fileName, std::ios::out);
+        std::ostream_iterator<int> output_iterator(outputFile, " ");
+        std::copy(elements.begin(), elements.end(), output_iterator);
+        outputFile.close();
+    }
+    catch(const EmptyTapeEx &)
+    {
+        throw EmptyTapeEx();
+    }
+    catch(const std::exception & e)
+    {
+        std::cerr << "Exception during opening/writing/closing tape file: "<< e.what()<<'\n' << std::flush;
     }
 }
 
@@ -58,11 +61,12 @@ int Tape::readHead() const
         std::ifstream inputFile(_fileName, std::ios::in);
         int value;
         inputFile >> value;
+        inputFile.close();
         return value;
     }
     catch(const std::ios_base::failure & e)
     {
-        std::cerr << "Exception during opening/writing/closing tape file" << std::flush;
+        std::cerr << "Exception during opening/reading head/closing tape file" << std::flush;
     }
 }
 
@@ -77,9 +81,12 @@ void Tape::eraseHead()
         tape.erase(tape.begin());
         writeTape(tape);
     }
+    catch(const EmptyTapeEx &)
+    {
+        throw EmptyTapeEx();
+    }
     catch(const std::exception &e)
     {
-        std::cerr << "Exception during erasing head from tape: "<< e.what() << std::flush;
+        std::cerr << "Exception during erasing head from tape: "<< e.what() << '\n' << std::flush;
     }
-    
 }

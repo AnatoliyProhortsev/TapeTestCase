@@ -2,6 +2,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <unistd.h>
 
 #include "Tape.h"
 
@@ -16,13 +18,13 @@ class Sorter
 
         void readConfig(const fs::path &configFileName);
 
-        void startSort(const fs::path &src);
+        void startSort(const fs::path &src, const fs::path &out);
 
     private:
         //Функции для сортировки
         [[nodiscard]] size_t            splitIntoTmpTapes(const fs::path &src, const size_t elemCount) const;
         [[nodiscard]] std::vector<int>  sortTape(const Tape &src);
-        void                            performOutputTape(const std::vector<Tape> &srcTapes);
+        void                            performOutputTape(std::vector<Tape> &srcTapes, const fs::path &out);
 
         //Переменные конфига
         size_t      _readWriteDelay;

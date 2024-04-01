@@ -26,7 +26,7 @@ void Sorter::readConfig(const fs::path &ConfigFileName)
     }
 }
 
-void Sorter::startSort(const fs::path &src)
+void Sorter::startSort(const fs::path &src, const fs::path &out)
 {
     try
     {
@@ -43,7 +43,7 @@ void Sorter::startSort(const fs::path &src)
             tmpTapes.push_back(tmpTape);
         }
         std::cout<<"Temporary tapes sorted\nStarted performing result tape\n";
-        performOutputTape(tmpTapes);
+        performOutputTape(tmpTapes, out);
         std::cout<<"Done!\n";
     }
     catch(const std::exception& e)
@@ -95,6 +95,7 @@ std::vector<int> Sorter::sortTape(const Tape &src)
     try
     {
         std::vector<int> data = src.readTape(0);
+        sleep(_moveDealy * _readWriteDelay);
         if(data.empty())
             throw EmptyTapeEx();
 
@@ -107,7 +108,58 @@ std::vector<int> Sorter::sortTape(const Tape &src)
     }
 }
 
-void Sorter::performOutputTape(const std::vector<Tape> &srcTapes)
+void Sorter::performOutputTape(std::vector<Tape> &srcTapes, const fs::path &out)
 {
-    //Берём минимальный элемент - записываем в выходную ленту
+    try
+    {
+        fs::path outC = out;
+        if(outC.remove_filename() != "")
+            fs::create_directory(outC);
+        
+        std::ofstream outputFile(out, std::ios::out);
+
+        std::unordered_map<int, int> mapp;
+        std::unordered_map<int,int> index_offset;
+        std::vector<Tape>::iterator iter;
+        std::vector<Tape>::iterator minTapeIter;
+        for(iter = srcTapes.begin(); iter != srcTapes.end();)
+        {
+            sleep(_readWriteDelay);
+            mapp.insert(std::make_pair(std::distance(srcTapes.begin(), iter), (*iter).readHead()));
+            iter++;
+        }
+        while(!mapp.empty())
+        {
+            std::pair<int, int> min = *std::min_element(mapp.begin(), mapp.end(),
+                [](std::unordered_map<int, int>::value_type a,
+                std::unordered_map<int, int>::value_type b)
+                    { return a.second < b.second; });
+
+            outputFile << min.second << ' ';
+
+            minTapeIter = srcTapes.begin();
+            std::advance(minTapeIter, min.first);
+            try
+            {
+                sleep(_readWriteDelay);
+                (*minTapeIter).eraseHead();
+                sleep(_readWriteDelay);
+                mapp[min.first] = (*minTapeIter).readHead();
+            }
+            catch(const EmptyTapeEx &)
+            {
+                mapp.erase(min.first);
+            }
+            catch(const std::exception& e)
+            {
+                outputFile.close();
+                throw;
+            }
+        }
+        outputFile.close();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << "\tException while performing output tape: " <<e.what() << '\n';
+    }
 }
