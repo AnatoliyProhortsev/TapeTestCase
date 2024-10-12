@@ -5,39 +5,58 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <filesystem>
+
+#include <algorithm>
+#include <iterator>
 
 #include "TapeInterface.hpp"
+
+// Exceptions
+#include "Exceptions/EmptyTapeException.hpp"
+#include "Exceptions/TapeLoadException.hpp"
+#include "Exceptions/TapeIOException.hpp"
 
 class Tape : public TapeInterface
 {
 public:
-    Tape();
-
-    Tape(const std::string &srcPath);
-
     ~Tape();
 
-    int read() const override;
+    // Create tape and specify file path
+    Tape(const std::string &srcPath);
 
-    void write(const int src) override;
+    // Read from magnet head position
+    int read() const noexcept override;
 
-    bool isEnd() const override;
+    // Write to tape on magnet head position
+    void write(const int src) noexcept override;
 
-    void moveForward() override;
+    // End of tape bool indicator getter
+    bool isEnd() const noexcept override;
 
-    void moveBackward() override;
+    // Move magnet head forward
+    void moveForward() noexcept override;
 
-    void rewind() override;
+    // Move magnet head backward
+    void moveBackward() noexcept override;
 
-    bool loadTape();
+    // Rewind magnet head to start position
+    void rewind() noexcept override;
 
+    // Load (N) bytes from file to tape
+    bool loadTape() override;
+
+    // Unload tape to current file
     bool unloadTape();
 
+    // Unload tape to back of existing file
+    bool appendTape(const std::string &path);
+
 private:
-    std::string         m_path;
-    std::ifstream       m_file;
-    std::vector<int>    m_data;
-    size_t              m_headPos;
+    std::string                 m_path;
+    std::fstream                m_file;
+    std::vector<int>            m_data;
+    std::vector<int>::iterator  m_head;
 };
 
 #endif // TAPE

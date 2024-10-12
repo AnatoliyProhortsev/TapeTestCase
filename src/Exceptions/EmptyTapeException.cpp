@@ -1,4 +1,4 @@
-#include "EmptyTapeException.h"
+#include "EmptyTapeException.hpp"
 
 EmptyTapeEx::EmptyTapeEx():msg("Tape is empty") {}
 

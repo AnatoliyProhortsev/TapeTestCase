@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CONFIGEXCEPTION
+#define CONFIGEXCEPTION
 
 #include <exception>
 #include <string>
@@ -12,3 +13,5 @@ class BadCfgEx: public std::exception
     private:
         const char *msg;
 };
+
+#endif // CONFIGEXCEPTION

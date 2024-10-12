@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EMPTYEXCEPTION
+#define EMPTYEXCEPTION
 
 #include <exception>
 #include <string>
@@ -12,3 +13,5 @@ class EmptyTapeEx: public std::exception
     private:
         const char* msg;
 };
+
+#endif // EMPTYEXCEPTION

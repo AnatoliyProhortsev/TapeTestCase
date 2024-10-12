@@ -1,60 +1,123 @@
 #include "Tape.hpp"
 
-Tape::Tape()
-{
-    // Конструктор по умолчанию
-    // Название файла ленты - (статическийНомерЛенты).txt
-}
+// Load a tape with (tape_count).txt file 
 
+// Create tape and specify file path
 Tape::Tape(const std::string &srcPath)
-{
-    // Загружаем в ленту файл с названием
-}
+    : m_path(srcPath) {}
 
 Tape::~Tape()
 {
-    // Вызываем unloadTape
-    // Очищаем массив данных
+
 }
 
-bool Tape::isEnd() const
+// Returns true if magnet head reached end of tape
+bool Tape::isEnd() const noexcept
 {
-    // Возврат результата (кол-во э-тов) == (поз_головки)
+    return true;
 }
 
-int Tape::read() const
+// Read from magnet head position
+int Tape::read() const noexcept
 {
-    // Чтение элемента по позиции магнитной головки
+    return 1;
 }
 
-void Tape::write(const int src)
+// Write to tape on magnet head position
+void Tape::write(const int src) noexcept
 {
-    // Запись в ленту по позиции магнитной головки
+    
 }
 
-void Tape::moveForward()
+// Move magnet head forward
+void Tape::moveForward() noexcept
 {
-    // Магнитная головка двигается на одну позицию вперёд
-    // Реализовать проверку на позицию
+
 }
 
-void Tape::moveBackward()
+// Move magnet head backward
+void Tape::moveBackward() noexcept
 {
-    // Магнитная головка двигается на одну позицию назад
-    // Реализовать проверку на позицию
+    // Ensure that iter != begin()
 }
 
-void Tape::rewind()
+// Rewind magnet head to start position
+void Tape::rewind() noexcept
 {
     // Магнитная головка откатывается на позицию первого элемента
 }
 
-bool Tape::loadTape()
+// Load (N) bytes from file to tape
+bool Tape::loadTape(const std::size_t &N) 
 {
-    // Файл загружается в ленту, головка устанавливается на позицию первого элемента
+    try
+    {
+        auto fileSize = std::filesystem::file_size(std::filesystem::path(m_path));
+        // Ensure that we reading correct count of elements
+        std::cout<<"file size in ints: "<<fileSize<<'\n';
+
+        m_file.open(m_path, std::ios::in | std::ios::binary);
+        if(!m_file.is_open())
+            throw TapeLoadEx("Unable to open file to load tape\n");
+
+        m_data.resize(N);
+        m_file.read(reinterpret_cast<char*>(m_data.data()), N * sizeof(int));
+
+        if(m_data.empty())
+            throw EmptyTapeEx();
+
+        m_file.close();
+    }
+    catch(const std::exception& e)
+    {
+        std::cout << e.what() << '\n';
+        m_file.close();
+        return false;
+    }
+
+
+    return true;
 }
 
 bool Tape::unloadTape()
 {
-    // Изменённая лента записывается в файл
+    try
+    {
+        m_file.open(m_path, std::ios::out | std::ios::binary);
+
+        if(!m_file.is_open())
+            throw TapeLoadEx("Unable to open file to load tape\n");
+
+        m_file.write(reinterpret_cast<char*>(m_data.data()), m_data.size() * sizeof(int));
+        m_file.close();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        m_file.close();
+        return false;
+    }
+    
+    return true;
+}
+
+bool Tape::appendTape(const std::string &filePath)
+{
+    try
+    {
+        m_file.open(filePath, std::ios::out | std::ios::app);
+        if(!m_file.is_open())
+            throw TapeLoadEx("Unable to open file to load tape\n");
+
+        m_file.write(reinterpret_cast<char*>(m_data.data()), m_data.size() * sizeof(int));
+        m_file.close();
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        m_file.close();
+        return false;
+    }
+
+    return true;
 }

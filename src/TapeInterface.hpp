@@ -4,13 +4,17 @@
 class TapeInterface
 {
 public:
-    virtual int read() const = 0;
-    virtual void write(const int src) = 0;
-    virtual bool isEnd() const = 0;
-    virtual void moveForward() = 0;
-    virtual void moveBackward() = 0;
-    virtual void rewind() = 0;
-    virtual ~TapeInterface() = default;
+    virtual      ~TapeInterface()     = default;
+
+    virtual bool isEnd()        const = 0;
+    virtual int  read()               = 0;
+    virtual bool write()              = 0;
+    virtual void moveForward()        = 0; 
+    virtual void moveBackward()       = 0;
+    virtual void rewind()             = 0;
+
+    virtual bool loadTape()   = 0;
+    virtual bool unloadTape() = 0;
 };
 
 #endif // TAPEINTERFACE

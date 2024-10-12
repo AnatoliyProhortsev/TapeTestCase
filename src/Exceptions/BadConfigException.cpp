@@ -1,4 +1,4 @@
-#include "BadConfigException.h"
+#include "BadConfigException.hpp"
 
 BadCfgEx::BadCfgEx():msg("Bad config") {}
 
